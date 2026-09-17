@@ -21,6 +21,25 @@ Wat erin zit:
 - **Werkwijze** — zeven stappen van verstek instellen tot draaien, plus
   aandachtspunten over nerf, houtsoorten en wanddikte.
 
+## qr/
+
+De QR-code die naar de webversie verwijst, om in een presentatie te zetten.
+
+- `zaaglijst-qr.svg` — de kale code, schaalt onbeperkt; deze is het handigst.
+- `zaaglijst-qr.png` — dezelfde code op 1584 px, voor programma's zonder SVG.
+- `zaaglijst-dia.svg` — kant-en-klare 16:9 dia met kop en adres.
+
+Verhuist de site, dan wijst de oude code nog naar de oude plek. Opnieuw maken:
+
+```sh
+pip install segno
+python qr/maak-qr.py https://het-nieuwe-adres/
+```
+
+De witte rand rond de code is de verplichte stille zone: plak daar niets
+overheen, anders vindt geen enkele telefoon de code. Maak hem op een dia
+ruwweg een tiende van de kijkafstand groot.
+
 ## Python/
 
 `Python/bowl_calculator.py` — de oorspronkelijke opzet: één ring per keer,
