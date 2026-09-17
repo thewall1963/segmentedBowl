@@ -6,40 +6,58 @@ Calculates trapezoid segment dimensions for a segmented bowl ring.
 import math
 
 
+def ask_float(prompt, default):
+    """Ask for a number; an empty answer keeps the default."""
+    answer = input(f"{prompt} [{default}]: ").strip().replace(",", ".")
+    return float(answer) if answer else default
+
+
 def get_inputs():
     print("=== Segmented Bowl Calculator ===\n")
 
     num_segments = int(input("Number of segments: "))
-    outer_diameter = float(input("Outer diameter (mm): "))
+    outer_diameter = float(input("Outer diameter at the bottom of the ring (mm): "))
     wall_thickness = float(input("Wall thickness (mm): "))
+    ring_height = ask_float("Ring height (mm)", 0.0)
+    wall_slope = ask_float("Wall slope from horizontal (degrees, 90 = straight)", 90.0)
 
-    return num_segments, outer_diameter, wall_thickness
+    return num_segments, outer_diameter, wall_thickness, ring_height, wall_slope
 
 
-def calculate_segment(num_segments, outer_diameter, wall_thickness):
+def calculate_segment(num_segments, outer_diameter, wall_thickness,
+                      ring_height=0.0, wall_slope=90.0):
     """
     Calculate trapezoid dimensions for a single segment.
 
+    outer_diameter is the finished diameter at the BOTTOM of the ring.
+
+    A ring is not a line. On a sloping wall the outside already moves outwards
+    over the height of that one ring, by ring_height / tan(wall_slope) per side.
+    The blank has to reach the widest point of the ring and clear the narrowest,
+    so the trapezoid is set out between those two diameters. With ring_height 0
+    or a slope of 90 degrees this falls back to a single diameter.
+
     Returns a dict with the calculated dimensions.
-    Add your calculation logic here.
     """
-    inner_diameter = outer_diameter - (2 * wall_thickness)
+    alfa = 360 / (num_segments * 2)     # the angle of the trapezoid
+    slope = math.radians(min(max(wall_slope, 20.0), 150.0))
 
+    growth = 2 * ring_height / math.tan(slope)      # over the full diameter
+    d_bottom = outer_diameter
+    d_top = outer_diameter + growth
 
-    # TODO: Add your calculations here
-
-    alfa = 360 /(num_segments*2)    # the angle of the trapezoid
-
-
+    outer_blank = max(d_bottom, d_top)                          # widest point
+    inner_blank = min(d_bottom, d_top) - (2 * wall_thickness)   # narrowest point
 
     results = {
-        "longside_trapezoid" : 2 * ((outer_diameter / 2) * math.tan(math.radians(alfa))),
-        "depth_trapezoid" : (outer_diameter/2) - ((outer_diameter/2) - wall_thickness ) * math.cos(math.radians(alfa)),
+        "miter_angle": alfa,
+        "longside_trapezoid": outer_blank * math.tan(math.radians(alfa)),
+        "shortside_trapezoid": inner_blank * math.sin(math.radians(alfa)),
+        "depth_trapezoid": (outer_blank / 2) - (inner_blank / 2) * math.cos(math.radians(alfa)),
 
+        "outer_diameter_blank": outer_blank,
+        "inner_diameter_blank": inner_blank,
         "num_segments": num_segments,
-        #"outer_diameter": outer_diameter,
-        #"inner_diameter": inner_diameter,
-        #"wall_thickness": wall_thickness,
     }
 
     return results
@@ -98,14 +116,17 @@ def display_results(results):
     print("\n=== Results ===")
     for key, value in results.items():
         label = key.replace("_", " ").title()
-        if isinstance(value, float):
+        if key == "miter_angle":
+            print(f"  {label}: {value:.2f} deg  (each end, off square)")
+        elif isinstance(value, float):
             print(f"  {label}: {value:.2f} mm")
         else:
             print(f"  {label}: {value}")
 
 
 if __name__ == "__main__":
-    num_segments, outer_diameter, wall_thickness = get_inputs()
-    results = calculate_segment(num_segments, outer_diameter, wall_thickness)
+    num_segments, outer_diameter, wall_thickness, ring_height, wall_slope = get_inputs()
+    results = calculate_segment(num_segments, outer_diameter, wall_thickness,
+                                ring_height, wall_slope)
     display_results(results)
     draw_segment(results)
