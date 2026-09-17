@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Zaaglijst en werkwijze voor het zagen van trapeziumsegmenten voor een gesegmenteerde houten schaal.">
+<style>
+  /* Basis, zodat de pagina los van elke omgeving hetzelfde staat. */
+  :root{
+    color-scheme: light dark;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  body{ margin:0; }
+  img{ max-width:100%; }
+  [hidden]{ display:none !important; }
+</style>
+<title>Zaaglijst voor segmentschalen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#E7E8E1; --surface:#F8F9F4; --surface-2:#DDE0D5;
+    --ink:#171A12; --ink-2:#5C6154; --line:#C6CABA;
+    --accent:#A06B15; --accent-soft:#EFE1C2; --walnut:#5A4030;
+    --ok:#3D6B38; --warn:#9E3F1D;
+    --shadow:0 1px 2px rgba(23,26,18,.07);
+    --f-display:"Fraunces",Georgia,"Times New Roman",serif;
+    --f-body:"IBM Plex Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#14160F; --surface:#1D2017; --surface-2:#272B20;
+      --ink:#E9EBE0; --ink-2:#99A08B; --line:#343827;
+      --accent:#E0A83F; --accent-soft:#3A2F16; --walnut:#C39C78;
+      --ok:#83B472; --warn:#E28457;
+      --shadow:0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14160F; --surface:#1D2017; --surface-2:#272B20;
+    --ink:#E9EBE0; --ink-2:#99A08B; --line:#343827;
+    --accent:#E0A83F; --accent-soft:#3A2F16; --walnut:#C39C78;
+    --ok:#83B472; --warn:#E28457;
+    --shadow:0 1px 2px rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--f-body); font-size:15px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding-inline:20px; padding-block:0 72px;}
+  h1,h2,h3{font-family:var(--f-display); font-weight:600; text-wrap:balance; margin:0;}
+  p{margin:0}
+  a{color:var(--accent)}
+
+  header.mast{
+    border-bottom:1px solid var(--line);
+    padding-block:28px 22px; margin-bottom:34px;
+    display:flex; flex-wrap:wrap; gap:18px 24px; align-items:flex-end; justify-content:space-between;
+  }
+  .mast h1{font-size:clamp(28px,5vw,42px); line-height:1.05; letter-spacing:-.01em;}
+  .mast .sub{color:var(--ink-2); max-width:54ch; margin-top:8px; font-size:14.5px;}
+  .eyebrow{
+    font-family:var(--f-mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent); margin-bottom:10px;
+  }
+  .unitbar{display:flex; gap:6px; align-items:center;}
+  .unitbar .lbl{font-family:var(--f-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2); margin-right:4px;}
+  .seg-toggle{display:flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface);}
+  .seg-toggle button{
+    appearance:none; border:0; background:transparent; cursor:pointer;
+    font-family:var(--f-mono); font-size:12px; padding:7px 14px; color:var(--ink-2);
+  }
+  .seg-toggle button[aria-pressed="true"]{background:var(--ink); color:var(--surface);}
+
+  .bench{display:grid; grid-template-columns:310px 1fr; gap:22px; align-items:start;}
+  @media (max-width:820px){ .bench{grid-template-columns:1fr} }
+
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:3px; box-shadow:var(--shadow);}
+  .panel > h2{
+    font-family:var(--f-mono); font-weight:500; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--ink-2);
+    padding:12px 16px; border-bottom:1px solid var(--line); margin:0;
+  }
+  .panel-body{padding:16px; display:flex; flex-direction:column; gap:14px;}
+
+  .field{display:grid; grid-template-columns:1fr 92px; gap:8px; align-items:center;}
+  .field label{font-size:13.5px; color:var(--ink-2); line-height:1.3;}
+  .field input, .field select{
+    font-family:var(--f-mono); font-size:14px; font-variant-numeric:tabular-nums;
+    width:100%; padding:7px 8px; text-align:right;
+    background:var(--bg); color:var(--ink);
+    border:1px solid var(--line); border-radius:2px;
+  }
+  .field select{text-align:left; padding-right:4px;}
+  .field.wide{grid-template-columns:1fr;}
+  .field input:focus-visible, .field select:focus-visible, button:focus-visible, tr:focus-visible{
+    outline:2px solid var(--accent); outline-offset:1px;
+  }
+  .ctl-label{font-size:13.5px; color:var(--ink-2); line-height:1.3;}
+  .seg-toggle.full{width:100%;}
+  .seg-toggle.full button{flex:1; text-align:center; padding:7px 6px;}
+  .derived{
+    font-size:12.5px; line-height:1.4; color:var(--ink-2);
+    border-left:2px solid var(--accent); padding:2px 0 2px 10px; margin-top:-4px;
+  }
+  .derived b{color:var(--ink); font-family:var(--f-mono); font-weight:500; font-size:12.5px;}
+  .rule{height:1px; background:var(--line); margin:2px 0;}
+  .hint{font-size:12.5px; color:var(--ink-2); font-style:italic;}
+
+  .drawings{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  @media (max-width:640px){ .drawings{grid-template-columns:1fr} }
+  figure{margin:0; background:var(--surface); border:1px solid var(--line); border-radius:3px; box-shadow:var(--shadow); overflow:hidden;}
+  figure svg{display:block; width:100%; height:auto; background:var(--surface);}
+  figcaption{
+    font-family:var(--f-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-2); padding:10px 14px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; gap:10px;
+  }
+  figcaption b{color:var(--ink); font-weight:500;}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);
+    border:1px solid var(--line); border-radius:3px; margin-top:22px; overflow:hidden;}
+  @media (max-width:640px){ .stats{grid-template-columns:repeat(2,1fr)} }
+  .stat{background:var(--surface); padding:14px 16px;}
+  .stat .k{font-family:var(--f-mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2);}
+  .stat .v{font-family:var(--f-display); font-size:26px; line-height:1.15; margin-top:4px; font-variant-numeric:tabular-nums;}
+  .stat .v small{font-family:var(--f-body); font-size:13px; color:var(--ink-2); font-weight:400;}
+  .stat .note{font-family:var(--f-body); font-size:12px; color:var(--ink-2); margin-top:3px; line-height:1.35;}
+
+  .alert{
+    margin-top:18px; padding:12px 14px; border-left:3px solid var(--warn);
+    background:var(--surface); color:var(--warn); font-size:14px; border-radius:0 3px 3px 0;
+  }
+  .alert[hidden]{display:none !important;}
+
+  section.block{margin-top:44px;}
+  .block > h2{font-size:22px; letter-spacing:-.005em;}
+  .block > .lede{color:var(--ink-2); margin-top:6px; max-width:68ch; font-size:14.5px;}
+  .tablewrap{overflow-x:auto; margin-top:16px; border:1px solid var(--line); border-radius:3px; background:var(--surface);}
+  table{border-collapse:collapse; width:100%; min-width:700px; font-variant-numeric:tabular-nums;}
+  th,td{padding:9px 12px; text-align:right; border-bottom:1px solid var(--line); font-family:var(--f-mono); font-size:13.5px;}
+  th{
+    font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-2);
+    font-weight:500; background:var(--surface-2); position:sticky; top:0;
+  }
+  th:first-child, td:first-child{text-align:left;}
+  tbody tr{cursor:pointer;}
+  tbody tr:hover{background:var(--surface-2);}
+  tbody tr[aria-selected="true"]{background:var(--accent-soft);}
+  tbody tr[aria-selected="true"] td:first-child{box-shadow:inset 3px 0 0 var(--accent);}
+  tbody tr:last-child td{border-bottom:0;}
+  .ringdot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--walnut); margin-right:8px; vertical-align:baseline;}
+
+  ol.steps{list-style:none; margin:18px 0 0; padding:0; display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:3px;}
+  ol.steps li{background:var(--surface); padding:16px 18px; display:grid; grid-template-columns:34px 1fr; gap:14px;}
+  ol.steps .n{font-family:var(--f-mono); font-size:13px; color:var(--accent); padding-top:2px;}
+  ol.steps h3{font-size:16.5px; font-family:var(--f-body); font-weight:600;}
+  ol.steps p{color:var(--ink-2); font-size:14px; margin-top:4px; max-width:70ch;}
+  ol.steps code{font-family:var(--f-mono); font-size:13px; background:var(--surface-2); padding:1px 5px; border-radius:2px; color:var(--ink);}
+
+  .notes{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:18px;}
+  .note h3{font-family:var(--f-body); font-size:14px; font-weight:600;}
+  .note p{color:var(--ink-2); font-size:14px; margin-top:4px;}
+  .note{border-top:2px solid var(--walnut); padding-top:10px;}
+
+  footer{margin-top:52px; padding-top:18px; border-top:1px solid var(--line); color:var(--ink-2); font-size:13px;}
+
+  @media print{
+    body{background:#fff}
+    .panel,figure,.stats,.tablewrap{box-shadow:none}
+    ol.steps,.notes{break-inside:avoid}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    tbody tr, .seg-toggle button{transition:background .12s ease;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <div class="eyebrow">Houtdraaien · ringopbouw</div>
+      <h1>Zaaglijst voor segmentschalen</h1>
+      <p class="sub">Stel de vorm van je schaal en het aantal segmenten in. Elke ring krijgt zijn eigen trapezium — lange zijde, korte zijde, strookbreedte — plus één verstekhoek voor het hele werkstuk.</p>
+    </div>
+    <div class="unitbar">
+      <span class="lbl">Maten</span>
+      <div class="seg-toggle" role="group" aria-label="Maateenheid">
+        <button id="unit-mm" type="button" aria-pressed="true">mm</button>
+        <button id="unit-in" type="button" aria-pressed="false">inch</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="bench">
+    <div class="panel">
+      <h2>De schaal</h2>
+      <div class="panel-body">
+        <div class="field">
+          <label for="segs">Segmenten per ring</label>
+          <input id="segs" type="number" min="4" max="48" step="1" value="12">
+        </div>
+        <div class="field">
+          <label for="rings">Aantal ringen</label>
+          <input id="rings" type="number" min="1" max="24" step="1" value="8">
+        </div>
+        <div class="field">
+          <label for="dbase">Diameter bij de bodem</label>
+          <input id="dbase" type="number" step="any" value="90">
+        </div>
+        <div class="field wide">
+          <span class="ctl-label">Bovenmaat bepalen via</span>
+          <div class="seg-toggle full" role="group" aria-label="Bovenmaat bepalen via">
+            <button id="mode-rand" type="button" aria-pressed="true">Randdiameter</button>
+            <button id="mode-helling" type="button" aria-pressed="false">Wandhelling</button>
+          </div>
+        </div>
+        <div class="field" id="row-drim">
+          <label for="drim">Diameter bij de rand</label>
+          <input id="drim" type="number" step="any" value="240">
+        </div>
+        <div class="field" id="row-slope" hidden>
+          <label for="slope">Wandhelling <span class="hint">(t.o.v. horizontaal; 90° = cilinder)</span></label>
+          <input id="slope" type="number" step="0.5" min="20" max="150" value="65">
+        </div>
+        <p class="derived" id="derived"></p>
+        <div class="field wide">
+          <label for="profile">Wandprofiel</label>
+          <select id="profile">
+            <option value="curve" selected>Gebogen — loopt onderin uit, bovenin recht</option>
+            <option value="straight">Recht — gelijkmatig taps</option>
+            <option value="belly">Bol — breedst onder de rand</option>
+          </select>
+        </div>
+        <div class="rule"></div>
+        <div class="field">
+          <label for="ringh">Ringhoogte <span class="hint">(plankdikte)</span></label>
+          <input id="ringh" type="number" step="any" value="20">
+        </div>
+        <div class="field">
+          <label for="wall">Wanddikte afgewerkt</label>
+          <input id="wall" type="number" step="any" value="10">
+        </div>
+        <div class="field">
+          <label for="kerf">Zaagsnede</label>
+          <input id="kerf" type="number" step="any" value="3">
+        </div>
+        <p class="hint">Ring 1 staat op de bodemschijf. De diameters zijn de afgewerkte, gedraaide maten — de blanks komen met opzet ruimer uit.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="drawings">
+        <figure>
+          <figcaption><span>Ring van boven</span><b id="cap-ring">Ring 1</b></figcaption>
+          <svg id="svg-ring" viewBox="0 0 340 340" role="img" aria-label="Bovenaanzicht van één gesegmenteerde ring"></svg>
+        </figure>
+        <figure>
+          <figcaption><span>Eén segment</span><b id="cap-seg">12 per ring</b></figcaption>
+          <svg id="svg-seg" viewBox="0 0 400 320" role="img" aria-label="Trapeziumvormig segment met maatvoering"></svg>
+        </figure>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="alert" id="alert" hidden></div>
+    </div>
+  </div>
+
+  <section class="block">
+    <h2>Zaaglijst</h2>
+    <p class="lede">Eén regel per ring, van onder naar boven. Klik op een regel om die hierboven te tekenen. <b>Ø buiten</b> is de wijdste maat die de ring moet halen — bij een schuine wand is dat de <em>bovenkant</em> van die ring — en <b>Ø binnen</b> de nauwste, aan de onderkant. <b>Strookbreedte</b> is de breedte waarop je de strook schulpt; <b>strooklengte</b> is inclusief één zaagsnede per zaagbeurt — reken nog wat extra voor de afsnede aan beide uiteinden.</p>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Ring</th>
+            <th scope="col">Ø buiten</th>
+            <th scope="col">Ø binnen</th>
+            <th scope="col">Lange zijde</th>
+            <th scope="col">Korte zijde</th>
+            <th scope="col">Strookbreedte</th>
+            <th scope="col">Strooklengte</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Zo zaag je de segmenten</h2>
+    <p class="lede">Hieronder gaan we uit van vlakke segmenten, gezaagd op de tafelzaag met een slede of verstekgeleider. De maten veranderen per schaal; de volgorde nooit.</p>
+    <ol class="steps">
+      <li><span class="n">01</span><div>
+        <h3>Eén hoek voor de hele schaal</h3>
+        <p>Elk segment is een trapezium waarvan beide uiteinden onder dezelfde hoek zijn gezaagd: <b id="txt-miter">15,00°</b> uit het vierkant, want <code>180 ÷ segmenten</code>. Twee van die hoeken vormen samen elke lijmnaad, en <span id="txt-segs">12</span> naden sluiten de cirkel op 360°. Stel de slede één keer in en laat hem staan — een tiende graad afwijking wordt met <span id="txt-segs2">12</span> vermenigvuldigd.</p>
+      </div></li>
+      <li><span class="n">02</span><div>
+        <h3>Vlak schaven, stroken schulpen</h3>
+        <p>Schaaf de plank op de ringhoogte, zodat alle ringen vlak op elkaar stapelen, en schulp per ring een strook op de breedte uit de tabel. Zaag liever een haar te breed dan te smal — wegdraaien kan altijd, terugplakken niet.</p>
+      </div></li>
+      <li><span class="n">03</span><div>
+        <h3>Segmenten zagen door de strook te keren</h3>
+        <p>Zaag één uiteinde op hoek, keer de strook om en zaag opnieuw, op de lengte van de lange zijde. Zo wisselen de trapeziums elkaar af zonder afvalwig ertussen, en blijven beide hoeken exact gelijk. Zaag één of twee reservesegmenten per ring.</p>
+      </div></li>
+      <li><span class="n">04</span><div>
+        <h3>Droog passen als twee halve ringen</h3>
+        <p>Leg de segmenten in een cirkel en beoordeel de spleet vóór het lijmen. Lijm een halve ring tegelijk en schuur daarna beide helften vlak op de schijfschuurmachine, tegen een aanslag. Daar corrigeer je de laatste fractie van een graad.</p>
+      </div></li>
+      <li><span class="n">05</span><div>
+        <h3>Helften lijmen, ring vlakken</h3>
+        <p>Lijm de twee helften aan elkaar en vlak daarna één zijde op een schuurplaat of op de draaibank. Een ring die niet vlak is, opent een naad in de volgende — en die fout stapelt door tot aan de rand.</p>
+      </div></li>
+      <li><span class="n">06</span><div>
+        <h3>Stapelen met een half segment verdraaid</h3>
+        <p>Draai elke ring een half segment verder — hier <b id="txt-offset">15,00°</b> — zodat geen enkele naad boven een andere komt. Het is sterker, en het is precies het beeld dat iedereen van segmentwerk kent.</p>
+      </div></li>
+      <li><span class="n">07</span><div>
+        <h3>Buiten en binnen draaien</h3>
+        <p>Draai eerst de buitenkant rond, hol daarna uit. Neem lichte sneden: je snijdt afwisselend kopshout en langshout, rondje na rondje, en een zware snede hapt in een lijmnaad. Draai de hele stapel pas als de lijm volledig is uitgehard.</p>
+      </div></li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <h2>Goed om te weten vóór je zaagt</h2>
+    <div class="notes">
+      <div class="note">
+        <h3>Waarom de blank groter is dan de schaal</h3>
+        <p>Een ring is een veelhoek, geen cirkel. De lange zijde is zo gekozen dat de platte kanten de gewenste buitendiameter halen, en de korte zijde zo dat de binnenhoeken op de gewenste binnendiameter liggen. Het overschot bij de platte kanten draait je guts weg.</p>
+      </div>
+      <div class="note">
+        <h3>De nerf loopt met de strook mee</h3>
+        <p>Zaag de segmenten met de nerf in de richting van de lange zijde. De ring gedraagt zich dan als een wiel van korte stukjes en werkt nauwelijks — precies daarom blijven segmentschalen rond.</p>
+      </div>
+      <div class="note">
+        <h3>Meer segmenten, minder afval</h3>
+        <p>Twaalf segmenten is het gebruikelijke startpunt. Met 16 of 24 ligt de veelhoek dichter bij de cirkel, dus verspil je minder hout bij een brede ring — maar elke extra naad is een extra kans op een spleet.</p>
+      </div>
+      <div class="note">
+        <h3>Een ring is hoger dan een lijn</h3>
+        <p>Bij een schuine wand loopt de buitenkant over de hoogte van één ring al naar buiten. De zaaglijst rekent daarmee: elke ring wordt op zijn wijdste maat gemaakt, boven, en op zijn nauwste, onder. Dikkere ringen vragen daardoor bredere stroken.</p>
+      </div>
+      <div class="note">
+        <h3>Wanddikte meet je horizontaal</h3>
+        <p>De wanddikte hierboven is de horizontale maat, op één hoogte gemeten. Haaks op een schuine wand blijft er minder over: 20 mm horizontaal is bij een wand van 55° nog maar zo'n 16 mm haaks. Houd daar rekening mee als je een minimale dikte wilt halen.</p>
+      </div>
+      <div class="note">
+        <h3>Houtsoorten mengen</h3>
+        <p>Houd soorten die ongeveer even veel werken bij elkaar in één ring. Noten naast hard esdoorn gaat prima; een droge ring naast een vochtige opent een seizoen later een naad.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Gemaakt voor de werkbank van de club. Pas altijd eerst droog voordat je naar de lijmpot grijpt — de slede heeft het laatste woord, niet de rekenmachine.</footer>
+</div>
+
+<script>
+(function(){
+  document.documentElement.lang = 'nl';
+
+  var S = {units:'mm', segs:12, rings:8, dbase:90, drim:240, mode:'rand', slope:65,
+           profile:'curve', ringh:20, wall:10, kerf:3, sel:0};
+  var IDS = ['segs','rings','dbase','drim','ringh','wall','kerf'];
+  var LEN = {dbase:1,drim:1,ringh:1,wall:1,kerf:1};
+
+  var $ = function(id){ return document.getElementById(id); };
+  var mm2in = function(v){ return v/25.4; };
+  var in2mm = function(v){ return v*25.4; };
+  var komma = function(s){ return String(s).replace('.', ','); };
+
+  function fmt(mmVal){
+    if(S.units === 'mm') return komma((Math.round(mmVal*10)/10).toFixed(1));
+    return komma((Math.round(mm2in(mmVal)*100)/100).toFixed(2));
+  }
+  function unitName(){ return S.units === 'mm' ? 'mm' : 'inch'; }
+  function fmtLang(mmVal){
+    if(S.units === 'mm'){
+      if(mmVal >= 1000) return komma((mmVal/1000).toFixed(2)) + ' m';
+      return Math.round(mmVal) + ' mm';
+    }
+    var inch = mm2in(mmVal);
+    if(inch >= 24) return komma((inch/12).toFixed(2)) + ' ft';
+    return komma(inch.toFixed(1)) + ' inch';
+  }
+  function hoek(deg, dec){ return komma(deg.toFixed(dec === undefined ? 2 : dec)) + '°'; }
+
+  // --- meetkunde -----------------------------------------------------------
+  function ringAantal(){ return Math.max(1, Math.round(S.rings)); }
+  function stapelHoogte(){ return ringAantal() * S.ringh; }
+
+  // De helling ligt tussen het horizontale vlak en de wand:
+  // 90\u00b0 = rechte cilinder, kleiner = verder open, boven 90\u00b0 loopt hij naar binnen.
+  function randDiameter(){
+    if(S.mode === 'rand') return S.drim;
+    var a = Math.max(20, Math.min(150, S.slope)) * Math.PI/180;
+    return S.dbase + 2 * stapelHoogte() / Math.tan(a);
+  }
+  function hellingUitDiameter(){
+    var run = (S.drim - S.dbase)/2;
+    if(Math.abs(run) < 1e-9) return 90;
+    var deg = Math.atan(stapelHoogte()/run) * 180/Math.PI;
+    return deg < 0 ? deg + 180 : deg;
+  }
+
+  // Buitendiameter op hoogtefractie u: 0 = onderkant van ring 1, 1 = de rand.
+  function outerAt(u){
+    var a = S.dbase, b = randDiameter();
+    if(S.profile === 'straight') return a + (b-a)*u;
+    if(S.profile === 'curve')    return a + (b-a)*Math.sin(u*Math.PI/2);
+    var bol = a + (b-a)*Math.sin(Math.min(u/0.8,1)*Math.PI/2);
+    return u > 0.8 ? bol - (b-a)*0.10*((u-0.8)/0.2) : bol;
+  }
+
+  function compute(){
+    var N = Math.max(4, Math.round(S.segs));
+    var half = Math.PI / N;
+    var n = ringAantal();
+    var rows = [];
+    for(var i=0;i<n;i++){
+      // Bij een schuine wand loopt de buitenkant over de hoogte van \u00e9\u00e9n ring naar buiten.
+      // De blank moet de wijdste plek halen en de nauwste plek vrijlaten.
+      var dLo = outerAt(i/n), dHi = outerAt((i+1)/n);
+      var dOut = Math.max(dLo, dHi);
+      var dIn  = Math.min(dLo, dHi) - 2*S.wall;
+      var dicht = dOut <= 0;
+      var aOut = dOut/2;                    // apothema van de buitenveelhoek
+      var aIn  = (dIn/2)*Math.cos(half);    // apothema van de binnenveelhoek
+      rows.push({
+        i:i,
+        dOut:dOut, dIn:dIn, aOut:aOut, aIn:aIn,
+        lang: 2*aOut*Math.tan(half),
+        kort: Math.max(0, 2*aIn*Math.tan(half)),
+        breedte: aOut - aIn,
+        strook: N * (2*aOut*Math.tan(half) + S.kerf),
+        dicht: dicht,
+        fout: dicht || dIn <= 0
+      });
+    }
+    return {N:N, half:half, verstek:180/N, rows:rows};
+  }
+
+  // --- tekenen -------------------------------------------------------------
+  function polar(cx,cy,r,a){ return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
+
+  function drawRing(m){
+    var r = m.rows[Math.min(S.sel, m.rows.length-1)];
+    var svg = $('svg-ring');
+    if(r.fout){
+      svg.innerHTML = '<text x="170" y="170" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="var(--warn)">'+(r.dicht ? 'ring loopt hier dicht' : 'wand te dik voor deze ring')+'</text>';
+      $('cap-ring').textContent = 'Ring ' + (r.i+1) + ' van ' + m.rows.length;
+      return;
+    }
+    var cx=170, cy=170, pad=34;
+    var Rout = r.aOut/Math.cos(m.half);
+    var k = (170-pad)/Rout;
+    var Rin = (r.dIn/2)*k, RoutP = Rout*k, aOutP = r.aOut*k;
+    var p = [];
+    p.push('<circle cx="'+cx+'" cy="'+cy+'" r="'+aOutP.toFixed(2)+'" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4"/>');
+    for(var s=0;s<m.N;s++){
+      var a0 = -Math.PI/2 + (2*Math.PI*s)/m.N - m.half;
+      var a1 = a0 + 2*m.half;
+      var A = polar(cx,cy,RoutP,a0), B = polar(cx,cy,RoutP,a1);
+      var C = polar(cx,cy,Rin,a1),   D = polar(cx,cy,Rin,a0);
+      var hi = (s === 0);
+      p.push('<path d="M'+A[0].toFixed(2)+' '+A[1].toFixed(2)+'L'+B[0].toFixed(2)+' '+B[1].toFixed(2)+
+             'L'+C[0].toFixed(2)+' '+C[1].toFixed(2)+'L'+D[0].toFixed(2)+' '+D[1].toFixed(2)+'Z" fill="'+
+             (hi ? 'var(--accent-soft)' : 'var(--surface-2)')+'" stroke="var(--walnut)" stroke-width="1.1" stroke-linejoin="round"/>');
+    }
+    p.push('<circle cx="'+cx+'" cy="'+cy+'" r="'+Rin.toFixed(2)+'" fill="var(--surface)" fill-opacity="0.35" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 4"/>');
+    var y = cy;
+    p.push('<line x1="'+(cx-aOutP).toFixed(2)+'" y1="'+y+'" x2="'+(cx+aOutP).toFixed(2)+'" y2="'+y+'" stroke="var(--accent)" stroke-width="1"/>');
+    p.push('<text x="'+cx+'" y="'+(y-7)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--accent)">Ø '+fmt(r.dOut)+'</text>');
+    p.push('<text x="'+cx+'" y="'+(y+17)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)">binnen Ø '+fmt(r.dIn)+'</text>');
+    p.push('<text x="'+cx+'" y="'+(cy+RoutP+24).toFixed(2)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)">'+m.N+' segmenten · streepjes = afgewerkte wand</text>');
+    svg.innerHTML = p.join('');
+    $('cap-ring').textContent = 'Ring ' + (r.i+1) + ' van ' + m.rows.length;
+  }
+
+  function drawSeg(m){
+    var r = m.rows[Math.min(S.sel, m.rows.length-1)];
+    var svg = $('svg-seg');
+    if(r.fout){
+      svg.innerHTML = '<text x="200" y="160" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="var(--warn)">'+(r.dicht ? 'ring loopt hier dicht' : 'binnendiameter is nul of kleiner')+'</text>';
+      $('cap-seg').textContent = m.N + ' per ring';
+      return;
+    }
+    var k = Math.min(220/r.lang, 110/Math.max(r.breedte, 0.001));
+    var L = r.lang*k, K = r.kort*k, W = r.breedte*k;
+    var cx = 180, yTop = 110, yBot = yTop + W;
+    var p = [];
+    p.push('<path d="M'+(cx-L/2).toFixed(2)+' '+yBot.toFixed(2)+'L'+(cx+L/2).toFixed(2)+' '+yBot.toFixed(2)+
+           'L'+(cx+K/2).toFixed(2)+' '+yTop+'L'+(cx-K/2).toFixed(2)+' '+yTop+'Z" fill="var(--accent-soft)" stroke="var(--walnut)" stroke-width="1.4" stroke-linejoin="round"/>');
+    for(var g=1; g<4; g++){
+      var yy = yTop + W*g/4;
+      var hw = (L - (L-K)*(1-g/4))/2;
+      p.push('<line x1="'+(cx-hw+5).toFixed(2)+'" y1="'+yy.toFixed(2)+'" x2="'+(cx+hw-5).toFixed(2)+'" y2="'+yy.toFixed(2)+'" stroke="var(--walnut)" stroke-width="0.6" stroke-opacity="0.35"/>');
+    }
+    p.push(dimH(cx-L/2, cx+L/2, yBot+24, 'lange zijde ' + fmt(r.lang), 16));
+    p.push(dimH(cx-K/2, cx+K/2, yTop-26, 'korte zijde ' + fmt(r.kort), -9));
+    p.push(ext(cx-K/2, yTop, yTop-22) + ext(cx+K/2, yTop, yTop-22));
+    p.push(ext(cx-L/2, yBot, yBot+20) + ext(cx+L/2, yBot, yBot+20));
+    p.push(dimV(cx+L/2+20, yTop, yBot, 'breedte ' + fmt(r.breedte)));
+    p.push('<line x1="'+(cx-L/2).toFixed(2)+'" y1="'+yBot.toFixed(2)+'" x2="'+(cx-L/2).toFixed(2)+'" y2="'+(yBot-46).toFixed(2)+'" stroke="var(--accent)" stroke-width="0.8" stroke-dasharray="3 3"/>');
+    p.push('<text x="'+(cx-L/2+7).toFixed(2)+'" y="'+(yBot-52).toFixed(2)+'" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--accent)">'+hoek(m.verstek,1)+' uit het vierkant</text>');
+    p.push('<text x="200" y="300" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)">nerf loopt van links naar rechts · maten in '+unitName()+'</text>');
+    svg.innerHTML = p.join('');
+    $('cap-seg').textContent = m.N + ' per ring';
+  }
+
+  function ext(x,y1,y2){
+    return '<line x1="'+x.toFixed(2)+'" y1="'+y1.toFixed(2)+'" x2="'+x.toFixed(2)+'" y2="'+y2.toFixed(2)+'" stroke="var(--ink-2)" stroke-width="0.6"/>';
+  }
+  function dimH(x1,x2,y,label,dy){
+    return '<line x1="'+x1.toFixed(2)+'" y1="'+y.toFixed(2)+'" x2="'+x2.toFixed(2)+'" y2="'+y.toFixed(2)+'" stroke="var(--ink-2)" stroke-width="0.9"/>'+
+      tick(x1,y)+tick(x2,y)+
+      '<text x="'+((x1+x2)/2).toFixed(2)+'" y="'+(y+dy).toFixed(2)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink)">'+label+'</text>';
+  }
+  function dimV(x,y1,y2,label){
+    return '<line x1="'+x+'" y1="'+y1.toFixed(2)+'" x2="'+x+'" y2="'+y2.toFixed(2)+'" stroke="var(--ink-2)" stroke-width="0.9"/>'+
+      '<line x1="'+(x-4)+'" y1="'+y1.toFixed(2)+'" x2="'+(x+4)+'" y2="'+y1.toFixed(2)+'" stroke="var(--ink-2)" stroke-width="0.9"/>'+
+      '<line x1="'+(x-4)+'" y1="'+y2.toFixed(2)+'" x2="'+(x+4)+'" y2="'+y2.toFixed(2)+'" stroke="var(--ink-2)" stroke-width="0.9"/>'+
+      '<text x="'+(x+7)+'" y="'+((y1+y2)/2+4).toFixed(2)+'" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink)">'+label+'</text>';
+  }
+  function tick(x,y){ return '<line x1="'+x.toFixed(2)+'" y1="'+(y-4).toFixed(2)+'" x2="'+x.toFixed(2)+'" y2="'+(y+4).toFixed(2)+'" stroke="var(--ink-2)" stroke-width="0.9"/>'; }
+
+  // --- renderen ------------------------------------------------------------
+  function stat(k,v,note){
+    return '<div class="stat"><div class="k">'+k+'</div><div class="v">'+v+'</div><div class="note">'+note+'</div></div>';
+  }
+
+  function render(){
+    var m = compute();
+    var u = unitName();
+
+    var totaalStrook = 0, maxB = 0, fout = false, dicht = false;
+    m.rows.forEach(function(r){
+      if(r.dicht) dicht = true;
+      if(r.fout){ fout = true; return; }
+      totaalStrook += r.strook; if(r.breedte>maxB) maxB = r.breedte;
+    });
+    var hoogte = m.rows.length * S.ringh;
+
+    $('stats').innerHTML =
+      stat('Verstekhoek', hoek(m.verstek), 'per uiteinde, uit het vierkant') +
+      stat('Segmenten', (m.N * m.rows.length), m.N + ' per ring × ' + m.rows.length + ' ringen') +
+      stat('Strook nodig', fmtLang(totaalStrook), 'totaal, zaagsnede inbegrepen') +
+      stat('Stapelhoogte', fmt(hoogte) + ' <small>' + u + '</small>', 'boven de bodemschijf');
+
+    // wat de andere invoermanier zou zeggen
+    if(S.mode === 'rand'){
+      $('derived').innerHTML = 'Dat is een wandhelling van <b>' + hoek(hellingUitDiameter(), 1) +
+        '</b> ten opzichte van het horizontale vlak, over een stapel van ' + fmt(stapelHoogte()) + ' ' + u + '.';
+    } else {
+      $('derived').innerHTML = 'De rand komt daarmee op <b>\u00d8 ' + fmt(randDiameter()) + ' ' + u +
+        '</b>. De helling geldt van bodem tot rand \u2014 het wandprofiel bepaalt de weg ertussen, ' +
+        'en meer of hogere ringen schuiven de randdiameter mee.';
+    }
+
+    var alert = $('alert');
+    if(dicht){
+      alert.hidden = false;
+      alert.textContent = 'Met deze helling loopt de schaal boven de bodem helemaal dicht. Kies een minder steile helling naar binnen, of begin met een bredere bodem.';
+    } else if(fout){
+      alert.hidden = false;
+      alert.textContent = 'Een wanddikte van ' + fmt(S.wall) + ' ' + u + ' laat geen opening over in de kleinste ring. Maak de wand dunner of de bodem groter.';
+    } else if(maxB > S.ringh * 4){
+      alert.hidden = false;
+      alert.textContent = 'De breedste ring vraagt een strook van ' + fmt(maxB) + ' ' + u + ' breed. Dat is veel hout om weg te draaien — met meer segmenten per ring valt dat flink terug.';
+    } else {
+      alert.hidden = true;
+    }
+
+    var html = '';
+    m.rows.forEach(function(r, idx){
+      var gekozen = (idx === Math.min(S.sel, m.rows.length-1));
+      html += '<tr tabindex="0" data-i="'+idx+'" aria-selected="'+gekozen+'">'+
+        '<td><span class="ringdot"></span>'+(idx+1)+'</td>'+
+        '<td>'+(r.dicht?'—':fmt(r.dOut))+'</td><td>'+(r.fout?'—':fmt(r.dIn))+'</td>'+
+        '<td>'+(r.dicht?'—':fmt(r.lang))+'</td><td>'+(r.fout?'—':fmt(r.kort))+'</td>'+
+        '<td>'+(r.fout?'—':fmt(r.breedte))+'</td><td>'+(r.fout?'—':fmt(r.strook))+'</td></tr>';
+    });
+    $('rows').innerHTML = html;
+
+    $('txt-miter').textContent = hoek(m.verstek);
+    $('txt-segs').textContent = m.N;
+    $('txt-segs2').textContent = m.N;
+    $('txt-offset').textContent = hoek(180/m.N);
+
+    drawRing(m); drawSeg(m);
+  }
+
+  // --- bediening -----------------------------------------------------------
+  function syncInputs(){
+    IDS.forEach(function(id){
+      var el = $(id);
+      if(LEN[id]) el.value = S.units === 'mm' ? (Math.round(S[id]*10)/10) : (Math.round(mm2in(S[id])*1000)/1000);
+      else el.value = S[id];
+    });
+    $('slope').value = Math.round(S.slope*10)/10;
+  }
+
+  IDS.forEach(function(id){
+    $(id).addEventListener('input', function(){
+      var v = parseFloat(String(this.value).replace(',', '.'));
+      if(isNaN(v)) return;
+      if(LEN[id]) S[id] = S.units === 'mm' ? v : in2mm(v);
+      else S[id] = Math.max(1, Math.round(v));
+      if(id === 'rings') S.sel = Math.min(S.sel, Math.max(0, Math.round(S.rings)-1));
+      render();
+    });
+  });
+  $('slope').addEventListener('input', function(){
+    var v = parseFloat(String(this.value).replace(',', '.'));
+    if(isNaN(v)) return;
+    S.slope = Math.max(20, Math.min(150, v));
+    render();
+  });
+
+  function setMode(mode){
+    if(mode === S.mode) return;
+    // neem de huidige vorm mee, zodat de schaal niet verspringt bij het wisselen
+    if(mode === 'helling') S.slope = Math.round(hellingUitDiameter()*10)/10;
+    else S.drim = randDiameter();
+    S.mode = mode;
+    $('mode-rand').setAttribute('aria-pressed', String(mode === 'rand'));
+    $('mode-helling').setAttribute('aria-pressed', String(mode === 'helling'));
+    $('row-drim').hidden = (mode !== 'rand');
+    $('row-slope').hidden = (mode !== 'helling');
+    syncInputs(); render();
+  }
+  $('mode-rand').addEventListener('click', function(){ setMode('rand'); });
+  $('mode-helling').addEventListener('click', function(){ setMode('helling'); });
+
+  $('profile').addEventListener('change', function(){ S.profile = this.value; render(); });
+
+  function setUnits(u){
+    S.units = u;
+    $('unit-mm').setAttribute('aria-pressed', String(u === 'mm'));
+    $('unit-in').setAttribute('aria-pressed', String(u === 'in'));
+    syncInputs(); render();
+  }
+  $('unit-mm').addEventListener('click', function(){ setUnits('mm'); });
+  $('unit-in').addEventListener('click', function(){ setUnits('in'); });
+
+  function kies(e){
+    var tr = e.target.closest('tr[data-i]');
+    if(!tr) return;
+    S.sel = parseInt(tr.dataset.i, 10);
+    render();
+  }
+  $('rows').addEventListener('click', kies);
+  $('rows').addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); kies(e); }
+  });
+
+  syncInputs();
+  render();
+})();
+</script>
+</body>
+</html>
