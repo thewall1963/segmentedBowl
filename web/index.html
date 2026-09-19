@@ -69,8 +69,6 @@
     font-family:var(--f-mono); font-size:11px; letter-spacing:.14em;
     text-transform:uppercase; color:var(--accent); margin-bottom:10px;
   }
-  .unitbar{display:flex; gap:6px; align-items:center;}
-  .unitbar .lbl{font-family:var(--f-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-2); margin-right:4px;}
   .seg-toggle{display:flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; background:var(--surface);}
   .seg-toggle button{
     appearance:none; border:0; background:transparent; cursor:pointer;
@@ -164,6 +162,16 @@
   ol.steps p{color:var(--ink-2); font-size:14px; margin-top:4px; max-width:70ch;}
   ol.steps code{font-family:var(--f-mono); font-size:13px; background:var(--surface-2); padding:1px 5px; border-radius:2px; color:var(--ink);}
 
+  /* De maltabel heeft maar twee smalle kolommen: laat de kaart om de inhoud
+     heen krimpen in plaats van de hele breedte op te rekken. */
+  .maldeck{display:grid; grid-template-columns:360px max-content; gap:22px;
+    align-items:start; justify-content:start; margin-top:18px;}
+  @media (max-width:820px){ .maldeck{grid-template-columns:1fr; justify-content:stretch;} }
+  .maldeck .tablewrap{margin-top:0; overflow-x:visible;}
+  .maldeck table{min-width:0; width:auto;}
+  .maldeck th, .maldeck td{white-space:nowrap; padding-inline:18px;}
+  #mal-formule{margin-top:12px;}
+
   .notes{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; margin-top:18px;}
   .note h3{font-family:var(--f-body); font-size:14px; font-weight:600;}
   .note p{color:var(--ink-2); font-size:14px; margin-top:4px;}
@@ -189,13 +197,6 @@
       <h1>Zaaglijst voor segmentschalen</h1>
       <p class="sub">Stel de vorm van je schaal en het aantal segmenten in. Elke ring krijgt zijn eigen trapezium — lange zijde, korte zijde, strookbreedte — plus één verstekhoek voor het hele werkstuk.</p>
     </div>
-    <div class="unitbar">
-      <span class="lbl">Maten</span>
-      <div class="seg-toggle" role="group" aria-label="Maateenheid">
-        <button id="unit-mm" type="button" aria-pressed="true">mm</button>
-        <button id="unit-in" type="button" aria-pressed="false">inch</button>
-      </div>
-    </div>
   </header>
 
   <div class="bench">
@@ -204,15 +205,15 @@
       <div class="panel-body">
         <div class="field">
           <label for="segs">Segmenten per ring</label>
-          <input id="segs" type="number" min="4" max="48" step="1" value="12">
+          <input id="segs" type="number" min="4" max="48" step="1" value="8">
         </div>
         <div class="field">
           <label for="rings">Aantal ringen</label>
-          <input id="rings" type="number" min="1" max="24" step="1" value="8">
+          <input id="rings" type="number" min="1" max="24" step="1" value="5">
         </div>
         <div class="field">
           <label for="dbase">Diameter bij de bodem</label>
-          <input id="dbase" type="number" step="any" value="90">
+          <input id="dbase" type="number" step="any" value="140">
         </div>
         <div class="field wide">
           <span class="ctl-label">Bovenmaat bepalen via</span>
@@ -223,7 +224,7 @@
         </div>
         <div class="field" id="row-drim">
           <label for="drim">Diameter bij de rand</label>
-          <input id="drim" type="number" step="any" value="240">
+          <input id="drim" type="number" step="any" value="280">
         </div>
         <div class="field" id="row-slope" hidden>
           <label for="slope">Wandhelling <span class="hint">(t.o.v. horizontaal; 90° = cilinder)</span></label>
@@ -233,8 +234,8 @@
         <div class="field wide">
           <label for="profile">Wandprofiel</label>
           <select id="profile">
-            <option value="curve" selected>Gebogen — loopt onderin uit, bovenin recht</option>
-            <option value="straight">Recht — gelijkmatig taps</option>
+            <option value="curve">Gebogen — loopt onderin uit, bovenin recht</option>
+            <option value="straight" selected>Recht — gelijkmatig taps</option>
             <option value="belly">Bol — breedst onder de rand</option>
           </select>
         </div>
@@ -245,7 +246,7 @@
         </div>
         <div class="field">
           <label for="wall">Wanddikte afgewerkt</label>
-          <input id="wall" type="number" step="any" value="10">
+          <input id="wall" type="number" step="any" value="20">
         </div>
         <div class="field">
           <label for="kerf">Zaagsnede</label>
@@ -262,7 +263,7 @@
           <svg id="svg-ring" viewBox="0 0 340 340" role="img" aria-label="Bovenaanzicht van één gesegmenteerde ring"></svg>
         </figure>
         <figure>
-          <figcaption><span>Eén segment</span><b id="cap-seg">12 per ring</b></figcaption>
+          <figcaption><span>Eén segment</span><b id="cap-seg">8 per ring</b></figcaption>
           <svg id="svg-seg" viewBox="0 0 400 320" role="img" aria-label="Trapeziumvormig segment met maatvoering"></svg>
         </figure>
       </div>
@@ -273,7 +274,7 @@
 
   <section class="block">
     <h2>Zaaglijst</h2>
-    <p class="lede">Eén regel per ring, van onder naar boven. Klik op een regel om die hierboven te tekenen. <b>Ø buiten</b> is de wijdste maat die de ring moet halen — bij een schuine wand is dat de <em>bovenkant</em> van die ring — en <b>Ø binnen</b> de nauwste, aan de onderkant. <b>Strookbreedte</b> is de breedte waarop je de strook schulpt; <b>strooklengte</b> is inclusief één zaagsnede per zaagbeurt — reken nog wat extra voor de afsnede aan beide uiteinden.</p>
+    <p class="lede">Eén regel per ring, van onder naar boven. Klik op een regel om die hierboven te tekenen. <b>Ø buiten</b> is de wijdste maat die de ring moet halen — bij een schuine wand is dat de <em>bovenkant</em> van die ring — en <b>Ø binnen</b> de nauwste, aan de onderkant. <b>Strookbreedte</b> is de breedte waarop je de strook in de lengte zaagt; <b>strooklengte</b> is inclusief één zaagsnede per zaagbeurt — reken nog wat extra voor de afsnede aan beide uiteinden.</p>
     <div class="tablewrap">
       <table>
         <thead>
@@ -293,32 +294,55 @@
   </section>
 
   <section class="block">
+    <h2>Een mal voor de verstekhoek</h2>
+    <p class="lede">De schaalverdeling op een slede of verstekgeleider is te grof voor <b id="mal-hoek">22,50°</b>. Zet de hoek daarom uit met een grote driehoek van karton of multiplex: teken <b>x</b> langs een rechte kant, zet daar haaks <b>y</b> op, en verbind de uiteinden. Tussen de schuine zijde en de zijde <b>x</b> ligt dan precies de verstekhoek. Alle combinaties hieronder staan in hele en halve centimeters en geven dezelfde hoek — kies de maten die op jouw liniaal het prettigst uitkomen. Neem liever de grootste driehoek: een halve millimeter naast de streep telt over een lange zijde veel minder zwaar. De maten hieronder staan in centimeters; de zaaglijst zelf staat in millimeters.</p>
+    <div class="maldeck">
+      <figure>
+        <figcaption><span>De mal uitzetten</span><b id="cap-mal">x 20,5 · y 8,5</b></figcaption>
+        <svg id="svg-mal" viewBox="0 0 360 250" role="img" aria-label="Rechthoekige driehoek met zijden x en y die de verstekhoek opspant"></svg>
+      </figure>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Zijde x</th>
+              <th scope="col">Zijde y</th>
+            </tr>
+          </thead>
+          <tbody id="mal-rows"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="hint" id="mal-formule"></p>
+  </section>
+
+  <section class="block">
     <h2>Zo zaag je de segmenten</h2>
     <p class="lede">Hieronder gaan we uit van vlakke segmenten, gezaagd op de tafelzaag met een slede of verstekgeleider. De maten veranderen per schaal; de volgorde nooit.</p>
     <ol class="steps">
       <li><span class="n">01</span><div>
         <h3>Eén hoek voor de hele schaal</h3>
-        <p>Elk segment is een trapezium waarvan beide uiteinden onder dezelfde hoek zijn gezaagd: <b id="txt-miter">15,00°</b> uit het vierkant, want <code>180 ÷ segmenten</code>. Twee van die hoeken vormen samen elke lijmnaad, en <span id="txt-segs">12</span> naden sluiten de cirkel op 360°. Stel de slede één keer in en laat hem staan — een tiende graad afwijking wordt met <span id="txt-segs2">12</span> vermenigvuldigd.</p>
+        <p>Elk segment is een trapezium waarvan beide uiteinden onder dezelfde hoek zijn gezaagd: <b id="txt-miter">22,50°</b> uit het lood, want <code>180 ÷ segmenten</code>. Twee van die hoeken vormen samen elke lijmnaad, en <span id="txt-segs">8</span> naden sluiten de cirkel op 360°. Stel de slede één keer in en laat hem staan — een tiende graad afwijking wordt met <span id="txt-segs2">8</span> vermenigvuldigd.</p>
       </div></li>
       <li><span class="n">02</span><div>
-        <h3>Vlak schaven, stroken schulpen</h3>
-        <p>Schaaf de plank op de ringhoogte, zodat alle ringen vlak op elkaar stapelen, en schulp per ring een strook op de breedte uit de tabel. Zaag liever een haar te breed dan te smal — wegdraaien kan altijd, terugplakken niet.</p>
+        <h3>Vlak schaven, stroken in de lengte zagen</h3>
+        <p>Schaaf de plank op de ringhoogte, zodat alle ringen vlak op elkaar stapelen, en zaag per ring in de lengte een strook af op de breedte uit de tabel. Zaag liever een haar te breed dan te smal — wegdraaien kan altijd, terugplakken niet.</p>
       </div></li>
       <li><span class="n">03</span><div>
         <h3>Segmenten zagen door de strook te keren</h3>
         <p>Zaag één uiteinde op hoek, keer de strook om en zaag opnieuw, op de lengte van de lange zijde. Zo wisselen de trapeziums elkaar af zonder afvalwig ertussen, en blijven beide hoeken exact gelijk. Zaag één of twee reservesegmenten per ring.</p>
       </div></li>
       <li><span class="n">04</span><div>
-        <h3>Droog passen als twee halve ringen</h3>
-        <p>Leg de segmenten in een cirkel en beoordeel de spleet vóór het lijmen. Lijm een halve ring tegelijk en schuur daarna beide helften vlak op de schijfschuurmachine, tegen een aanslag. Daar corrigeer je de laatste fractie van een graad.</p>
+        <h3>Droog passen op een strip tape</h3>
+        <p>Gebruik een strip afplaktape met de plakkant naar boven om de segmenten aaneensluitend naast elkaar neer te leggen. Pak beide uiteinden op en beweeg ze naar elkaar toe, en inspecteer of de naden goed sluiten.</p>
       </div></li>
       <li><span class="n">05</span><div>
-        <h3>Helften lijmen, ring vlakken</h3>
-        <p>Lijm de twee helften aan elkaar en vlak daarna één zijde op een schuurplaat of op de draaibank. Een ring die niet vlak is, opent een naad in de volgende — en die fout stapelt door tot aan de rand.</p>
+        <h3>Oprollen tot een ring, daarna vlakken</h3>
+        <p>Breng lijm aan in alle naden terwijl de segmenten op de tape blijven liggen, rol de strip op tot een ring en trek de laatste naad dicht met de tape zelf of met een spanband. Vlak daarna één zijde op een schuurplaat of op de draaibank. Een ring die niet vlak is, opent een naad in de volgende — en die fout stapelt door tot aan de rand.</p>
       </div></li>
       <li><span class="n">06</span><div>
         <h3>Stapelen met een half segment verdraaid</h3>
-        <p>Draai elke ring een half segment verder — hier <b id="txt-offset">15,00°</b> — zodat geen enkele naad boven een andere komt. Het is sterker, en het is precies het beeld dat iedereen van segmentwerk kent.</p>
+        <p>Draai elke ring een half segment verder — hier <b id="txt-offset">22,50°</b> — zodat geen enkele naad boven een andere komt. Het is sterker, en het is precies het beeld dat iedereen van segmentwerk kent.</p>
       </div></li>
       <li><span class="n">07</span><div>
         <h3>Buiten en binnen draaien</h3>
@@ -364,29 +388,21 @@
 (function(){
   document.documentElement.lang = 'nl';
 
-  var S = {units:'mm', segs:12, rings:8, dbase:90, drim:240, mode:'rand', slope:65,
-           profile:'curve', ringh:20, wall:10, kerf:3, sel:0};
+  var S = {segs:8, rings:5, dbase:140, drim:280, mode:'rand', slope:65,
+           profile:'straight', ringh:20, wall:20, kerf:3, sel:0, mal:0};
   var IDS = ['segs','rings','dbase','drim','ringh','wall','kerf'];
   var LEN = {dbase:1,drim:1,ringh:1,wall:1,kerf:1};
 
   var $ = function(id){ return document.getElementById(id); };
-  var mm2in = function(v){ return v/25.4; };
-  var in2mm = function(v){ return v*25.4; };
   var komma = function(s){ return String(s).replace('.', ','); };
 
   function fmt(mmVal){
-    if(S.units === 'mm') return komma((Math.round(mmVal*10)/10).toFixed(1));
-    return komma((Math.round(mm2in(mmVal)*100)/100).toFixed(2));
+    return komma((Math.round(mmVal*10)/10).toFixed(1));
   }
-  function unitName(){ return S.units === 'mm' ? 'mm' : 'inch'; }
+  function unitName(){ return 'mm'; }
   function fmtLang(mmVal){
-    if(S.units === 'mm'){
-      if(mmVal >= 1000) return komma((mmVal/1000).toFixed(2)) + ' m';
-      return Math.round(mmVal) + ' mm';
-    }
-    var inch = mm2in(mmVal);
-    if(inch >= 24) return komma((inch/12).toFixed(2)) + ' ft';
-    return komma(inch.toFixed(1)) + ' inch';
+    if(mmVal >= 1000) return komma((mmVal/1000).toFixed(2)) + ' m';
+    return Math.round(mmVal) + ' mm';
   }
   function hoek(deg, dec){ return komma(deg.toFixed(dec === undefined ? 2 : dec)) + '°'; }
 
@@ -490,9 +506,10 @@
       $('cap-seg').textContent = m.N + ' per ring';
       return;
     }
-    var k = Math.min(220/r.lang, 110/Math.max(r.breedte, 0.001));
+    // 200 breed en cx op 168: rechts blijft ruimte voor het breedte-label
+    var k = Math.min(200/r.lang, 110/Math.max(r.breedte, 0.001));
     var L = r.lang*k, K = r.kort*k, W = r.breedte*k;
-    var cx = 180, yTop = 110, yBot = yTop + W;
+    var cx = 168, yTop = 110, yBot = yTop + W;
     var p = [];
     p.push('<path d="M'+(cx-L/2).toFixed(2)+' '+yBot.toFixed(2)+'L'+(cx+L/2).toFixed(2)+' '+yBot.toFixed(2)+
            'L'+(cx+K/2).toFixed(2)+' '+yTop+'L'+(cx-K/2).toFixed(2)+' '+yTop+'Z" fill="var(--accent-soft)" stroke="var(--walnut)" stroke-width="1.4" stroke-linejoin="round"/>');
@@ -506,8 +523,10 @@
     p.push(ext(cx-K/2, yTop, yTop-22) + ext(cx+K/2, yTop, yTop-22));
     p.push(ext(cx-L/2, yBot, yBot+20) + ext(cx+L/2, yBot, yBot+20));
     p.push(dimV(cx+L/2+20, yTop, yBot, 'breedte ' + fmt(r.breedte)));
-    p.push('<line x1="'+(cx-L/2).toFixed(2)+'" y1="'+yBot.toFixed(2)+'" x2="'+(cx-L/2).toFixed(2)+'" y2="'+(yBot-46).toFixed(2)+'" stroke="var(--accent)" stroke-width="0.8" stroke-dasharray="3 3"/>');
-    p.push('<text x="'+(cx-L/2+7).toFixed(2)+'" y="'+(yBot-52).toFixed(2)+'" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--accent)">'+hoek(m.verstek,1)+' uit het vierkant</text>');
+    // De hoekaanduiding hangt bovenaan aan een lijn vanaf de linker onderhoek,
+    // zodat hij nooit over het breedte-label rechts heen valt.
+    p.push('<line x1="'+(cx-L/2).toFixed(2)+'" y1="'+yBot.toFixed(2)+'" x2="'+(cx-L/2).toFixed(2)+'" y2="34" stroke="var(--accent)" stroke-width="0.8" stroke-dasharray="3 3"/>');
+    p.push('<text x="'+(cx-L/2+7).toFixed(2)+'" y="28" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--accent)">'+hoek(m.verstek,1)+' uit het lood</text>');
     p.push('<text x="200" y="300" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)">nerf loopt van links naar rechts · maten in '+unitName()+'</text>');
     svg.innerHTML = p.join('');
     $('cap-seg').textContent = m.N + ' per ring';
@@ -529,6 +548,106 @@
   }
   function tick(x,y){ return '<line x1="'+x.toFixed(2)+'" y1="'+(y-4).toFixed(2)+'" x2="'+x.toFixed(2)+'" y2="'+(y+4).toFixed(2)+'" stroke="var(--ink-2)" stroke-width="0.9"/>'; }
 
+  // --- mal voor de verstekhoek ---------------------------------------------
+  // Een rechthoekige driehoek met rechthoekszijden x en y spant de hoek
+  // atan(y/x) op. Beide zijden blijven hele of halve centimeters — anders valt
+  // er op een liniaal niets nauwkeurigs af te tekenen — en alleen paren die
+  // binnen MAL_TOL van de verstekhoek blijven halen de lijst.
+  // De mal staat in centimeters: je zet hem uit met de liniaal die op de werkbank ligt.
+  var MAL_TOL = 0.07;
+  function malBereik(){
+    return {lo:15, hi:30, stapX:0.5, eenheid:'cm', apart:2};
+  }
+  function malRondheid(v){
+    return (Math.abs(v - Math.round(v)) < 1e-9) ? 0 : 1;
+  }
+  function malGetal(v){
+    return komma((Math.round(v*10)/10).toFixed(1));
+  }
+  function malParen(theta){
+    var B = malBereik(), t = Math.tan(theta*Math.PI/180), alle = [], gehad = {};
+    for(var i = 0; i <= Math.round((B.hi-B.lo)/B.stapX); i++){
+      var x = Math.round((B.lo + i*B.stapX)*2)/2;
+      // de halve centimeter onder en boven de exacte waarde
+      [Math.floor(x*t*2)/2, Math.ceil(x*t*2)/2].forEach(function(y){
+        var sleutel = x + 'x' + y;
+        if(y <= 0 || y > B.hi || gehad[sleutel]) return;
+        gehad[sleutel] = 1;
+        var err = Math.atan(y/x)*180/Math.PI - theta;
+        alle.push({
+          x:x, y:y, err:err,
+          score: Math.abs(err) + (malRondheid(x) + malRondheid(y))*0.02
+        });
+      });
+    }
+    // eerst alles binnen de tolerantie; levert dat niets op, dan de beste die er is
+    var bruikbaar = alle.filter(function(c){ return Math.abs(c.err) < MAL_TOL; });
+    if(!bruikbaar.length) bruikbaar = alle.slice();
+    bruikbaar.sort(function(a,b){ return a.score - b.score; });
+    var keep = [];
+    bruikbaar.forEach(function(c){
+      if(keep.length >= 4) return;
+      // driehoeken die qua formaat te dicht bij elkaar liggen voegen niets toe
+      if(keep.some(function(k){ return Math.abs(k.x - c.x) < B.apart; })) return;
+      keep.push(c);
+    });
+    keep.sort(function(a,b){ return a.x - b.x; });
+    return keep;
+  }
+
+  function drawMal(theta, p){
+    var svg = $('svg-mal');
+    if(!p){ svg.innerHTML = ''; return; }
+    var W = 360, padL = 28, padR = 116, padT = 26, padB = 62, maxH = 170;
+    // De tekening groeit mee met de driehoek: vlakke hoeken krijgen een laag
+    // vak, steile een hoog, zodat er nooit een leeg veld boven de schuine zijde staat.
+    var bw = W - padL - padR;
+    var bh = Math.min(bw*p.y/p.x, maxH);
+    bw = bh*p.x/p.y;
+    var H = Math.round(padT + bh + padB);
+    var x0 = padL + ((W-padL-padR) - bw)/2, yb = H - padB;
+    var Ax = x0, Bx = x0 + bw, Cy = yb - bh;
+    var d = [];
+    d.push('<path d="M'+Ax.toFixed(2)+' '+yb.toFixed(2)+'L'+Bx.toFixed(2)+' '+yb.toFixed(2)+
+           'L'+Bx.toFixed(2)+' '+Cy.toFixed(2)+'Z" fill="var(--accent-soft)" stroke="var(--walnut)" stroke-width="1.4" stroke-linejoin="round"/>');
+    // haakje bij de rechte hoek
+    var h = 11;
+    d.push('<path d="M'+(Bx-h).toFixed(2)+' '+yb.toFixed(2)+'L'+(Bx-h).toFixed(2)+' '+(yb-h).toFixed(2)+
+           'L'+Bx.toFixed(2)+' '+(yb-h).toFixed(2)+'" fill="none" stroke="var(--ink-2)" stroke-width="0.9"/>');
+    // boog met de verstekhoek
+    var R = Math.min(52, bw*0.30), a = Math.atan(p.y/p.x);
+    d.push('<path d="M'+(Ax+R).toFixed(2)+' '+yb.toFixed(2)+'A'+R.toFixed(2)+' '+R.toFixed(2)+' 0 0 0 '+
+           (Ax+R*Math.cos(a)).toFixed(2)+' '+(yb-R*Math.sin(a)).toFixed(2)+'" fill="none" stroke="var(--accent)" stroke-width="1.1"/>');
+    // het hoeklabel staat boven de schuine zijde, waar bij elke hoek ruimte is
+    d.push('<text x="'+(Ax+bw*0.46).toFixed(2)+'" y="'+(yb-bh*0.46-11).toFixed(2)+
+           '" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--accent)">'+hoek(theta)+'</text>');
+    d.push(ext(Ax, yb, yb+20) + ext(Bx, yb, yb+20));
+    d.push(dimH(Ax, Bx, yb+24, 'x = ' + malGetal(p.x), 16));
+    d.push(dimV(Bx+20, Cy, yb, 'y = ' + malGetal(p.y)));
+    d.push('<text x="180" y="'+(H-5)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-2)">maten in '+malBereik().eenheid+'</text>');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.innerHTML = d.join('');
+    $('cap-mal').textContent = 'x ' + malGetal(p.x) + ' · y ' + malGetal(p.y);
+  }
+
+  function renderMal(m){
+    var paren = malParen(m.verstek), B = malBereik();
+    if(S.mal >= paren.length) S.mal = 0;
+    var html = '';
+    paren.forEach(function(p, idx){
+      html += '<tr tabindex="0" data-i="'+idx+'" aria-selected="'+(idx === S.mal)+'">'+
+        '<td><span class="ringdot"></span>'+malGetal(p.x)+'</td>'+
+        '<td>'+malGetal(p.y)+'</td></tr>';
+    });
+    $('mal-rows').innerHTML = html;
+    $('mal-hoek').textContent = hoek(m.verstek);
+    $('mal-formule').innerHTML = 'Zelf een maat kiezen? Dan is <code>y = x × tan(' + hoek(m.verstek) +
+      ') = x × ' + komma(Math.tan(m.verstek*Math.PI/180).toFixed(4)) + '</code>. Hierboven staan de paren tussen ' +
+      komma(String(B.lo)) + ' en ' + komma(String(B.hi)) + ' ' + B.eenheid +
+      ', in hele en halve centimeters, want zo zet je ze zonder gepuzzel af. Controleer de mal door hem om te keren en de hoek tweemaal naast elkaar af te tekenen: twee keer de verstekhoek hoort de naad van één lijmvlak te geven.';
+    drawMal(m.verstek, paren[S.mal]);
+  }
+
   // --- renderen ------------------------------------------------------------
   function stat(k,v,note){
     return '<div class="stat"><div class="k">'+k+'</div><div class="v">'+v+'</div><div class="note">'+note+'</div></div>';
@@ -547,7 +666,7 @@
     var hoogte = m.rows.length * S.ringh;
 
     $('stats').innerHTML =
-      stat('Verstekhoek', hoek(m.verstek), 'per uiteinde, uit het vierkant') +
+      stat('Verstekhoek', hoek(m.verstek), 'per uiteinde, uit het lood') +
       stat('Segmenten', (m.N * m.rows.length), m.N + ' per ring × ' + m.rows.length + ' ringen') +
       stat('Strook nodig', fmtLang(totaalStrook), 'totaal, zaagsnede inbegrepen') +
       stat('Stapelhoogte', fmt(hoogte) + ' <small>' + u + '</small>', 'boven de bodemschijf');
@@ -592,6 +711,8 @@
     $('txt-segs2').textContent = m.N;
     $('txt-offset').textContent = hoek(180/m.N);
 
+    renderMal(m);
+
     drawRing(m); drawSeg(m);
   }
 
@@ -599,8 +720,7 @@
   function syncInputs(){
     IDS.forEach(function(id){
       var el = $(id);
-      if(LEN[id]) el.value = S.units === 'mm' ? (Math.round(S[id]*10)/10) : (Math.round(mm2in(S[id])*1000)/1000);
-      else el.value = S[id];
+      el.value = LEN[id] ? (Math.round(S[id]*10)/10) : S[id];
     });
     $('slope').value = Math.round(S.slope*10)/10;
   }
@@ -609,9 +729,10 @@
     $(id).addEventListener('input', function(){
       var v = parseFloat(String(this.value).replace(',', '.'));
       if(isNaN(v)) return;
-      if(LEN[id]) S[id] = S.units === 'mm' ? v : in2mm(v);
+      if(LEN[id]) S[id] = v;
       else S[id] = Math.max(1, Math.round(v));
       if(id === 'rings') S.sel = Math.min(S.sel, Math.max(0, Math.round(S.rings)-1));
+      if(id === 'segs') S.mal = 0;
       render();
     });
   });
@@ -639,15 +760,6 @@
 
   $('profile').addEventListener('change', function(){ S.profile = this.value; render(); });
 
-  function setUnits(u){
-    S.units = u;
-    $('unit-mm').setAttribute('aria-pressed', String(u === 'mm'));
-    $('unit-in').setAttribute('aria-pressed', String(u === 'in'));
-    syncInputs(); render();
-  }
-  $('unit-mm').addEventListener('click', function(){ setUnits('mm'); });
-  $('unit-in').addEventListener('click', function(){ setUnits('in'); });
-
   function kies(e){
     var tr = e.target.closest('tr[data-i]');
     if(!tr) return;
@@ -657,6 +769,17 @@
   $('rows').addEventListener('click', kies);
   $('rows').addEventListener('keydown', function(e){
     if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); kies(e); }
+  });
+
+  function kiesMal(e){
+    var tr = e.target.closest('tr[data-i]');
+    if(!tr) return;
+    S.mal = parseInt(tr.dataset.i, 10);
+    render();
+  }
+  $('mal-rows').addEventListener('click', kiesMal);
+  $('mal-rows').addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); kiesMal(e); }
   });
 
   syncInputs();
