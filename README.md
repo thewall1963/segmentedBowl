@@ -13,11 +13,15 @@ Wat erin zit:
 
 - **Invoer** — segmenten per ring, aantal ringen, bodemdiameter, en de bovenmaat
   als randdiameter *of* als wandhelling. Verder wandprofiel (gebogen, recht,
-  bol), ringhoogte, wanddikte en zaagsnede. Maten in mm of inch.
+  bol), ringhoogte, wanddikte en zaagsnede. Alle maten in mm.
 - **Tekeningen** — bovenaanzicht van de gekozen ring, en het segment met
   maatvoering en de verstekhoek.
 - **Zaaglijst** — per ring de buiten- en binnendiameter, lange zijde, korte
   zijde, strookbreedte en strooklengte.
+- **Verstekmal** — maten voor een rechthoekige driehoek van karton of multiplex
+  waarmee je de verstekhoek uitzet: zijde `x` langs een rechte kant, daar haaks
+  `y` op. Alleen hele en halve centimeters tussen 15 en 30 cm, en alleen paren
+  die binnen 0,07° van de verstekhoek blijven.
 - **Werkwijze** — zeven stappen van verstek instellen tot draaien, plus
   aandachtspunten over nerf, houtsoorten en wanddikte.
 
